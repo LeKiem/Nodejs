@@ -1,6 +1,8 @@
 import db from "../models/index";
-import bcrypt from "bcryptjs";
-
+// import bcrypt from "bcryptjs";
+require("dotenv").config();
+import _ from "lodash";
+const MAX_NUMBER_SCHEDULE = process.env.MAX_NUMBER_SCHEDULE;
 let getTopDoctorHome = limitInput => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -142,9 +144,59 @@ let getDetailDoctorById = inputId => {
     }
   });
 };
+const bulkCreateSchedule = async data => {
+  try {
+    if (!data.arrSchedule || !data.doctorId || !data.formatedDate) {
+      return { errCode: 1, errMessage: "Thiếu tham số bắt buộc!" };
+    }
+
+    let schedule = data.arrSchedule;
+
+    if (schedule.length > 0) {
+      schedule = schedule.map(item => {
+        return { ...item, maxNumber: MAX_NUMBER_SCHEDULE };
+      });
+    }
+
+    const existing = await db.Schedule.findAll({
+      where: { doctorId: data.doctorId, date: data.formatedDate },
+      attributes: ["timeType", "date", "doctorId", "maxNumber"],
+      raw: true
+    });
+
+    if (existing.length > 0) {
+      existing.forEach(item => {
+        item.date = new Date(item.date).getTime();
+      });
+    }
+
+    // const toCreate = schedule.filter(a => {
+    //   return !existing.some(
+    //     b => a.timeType === b.timeType && a.date === new Date(b.date).getTime()
+    //   );
+    // });
+    let toCreate = _.differenceWith(schedule, existing, (a, b) => {
+      return a.timeType === b.timeType && +a.date === +b.date;
+    });
+    if (toCreate && toCreate.length > 0) {
+      await db.Schedule.bulkCreate(toCreate);
+    }
+
+    console.log(toCreate);
+
+    return {
+      errCode: 0,
+      errMessage: "OK"
+    };
+  } catch (e) {
+    throw e;
+  }
+};
+
 module.exports = {
   getTopDoctorHome: getTopDoctorHome,
   getALlDoctors: getALlDoctors,
   saveDetailInfoDoctor: saveDetailInfoDoctor,
-  getDetailDoctorById: getDetailDoctorById
+  getDetailDoctorById: getDetailDoctorById,
+  bulkCreateSchedule: bulkCreateSchedule
 };
