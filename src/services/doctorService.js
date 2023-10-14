@@ -3,7 +3,7 @@ import db from "../models/index";
 require("dotenv").config();
 import _ from "lodash";
 const MAX_NUMBER_SCHEDULE = process.env.MAX_NUMBER_SCHEDULE;
-let getTopDoctorHome = limitInput => {
+let getTopDoctorHome = (limitInput) => {
   return new Promise(async (resolve, reject) => {
     try {
       let users = await db.User.findAll({
@@ -58,7 +58,7 @@ let getALlDoctors = () => {
   });
 };
 
-let saveDetailInfoDoctor = inputData => {
+let saveDetailInfoDoctor = (inputData) => {
   return new Promise(async (resolve, reject) => {
     try {
       if (
@@ -103,7 +103,7 @@ let saveDetailInfoDoctor = inputData => {
   });
 };
 
-let getDetailDoctorById = inputId => {
+let getDetailDoctorById = (inputId) => {
   return new Promise(async (resolve, reject) => {
     try {
       if (!inputId) {
@@ -144,7 +144,7 @@ let getDetailDoctorById = inputId => {
     }
   });
 };
-const bulkCreateSchedule = async data => {
+const bulkCreateSchedule = async (data) => {
   try {
     if (!data.arrSchedule || !data.doctorId || !data.formatedDate) {
       return { errCode: 1, errMessage: "Thiếu tham số bắt buộc!" };
@@ -153,7 +153,7 @@ const bulkCreateSchedule = async data => {
     let schedule = data.arrSchedule;
 
     if (schedule.length > 0) {
-      schedule = schedule.map(item => {
+      schedule = schedule.map((item) => {
         return { ...item, maxNumber: MAX_NUMBER_SCHEDULE };
       });
     }
@@ -165,7 +165,7 @@ const bulkCreateSchedule = async data => {
     });
 
     if (existing.length > 0) {
-      existing.forEach(item => {
+      existing.forEach((item) => {
         item.date = new Date(item.date).getTime();
       });
     }
@@ -192,11 +192,54 @@ const bulkCreateSchedule = async data => {
     throw e;
   }
 };
+let getScheduleByDate = (doctorId, date) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!doctorId || !date) {
+        resolve({
+          errCode: 1,
+          errMessage: "Missing required parameter!"
+        });
+      } else {
+        let dataSchedule = await db.Schedule.findAll({
+          where: {
+            doctorId: doctorId,
+            date: date
+          }
+          // include: [
+          //   {
+          //     model: db.Allcode,
+          //     as: "timeTypeData",
+          //     attributes: ["valueEn", "valueVi"]
+          //   },
+          //   {
+          //     model: db.User,
+          //     as: "doctorData",
+          //     attributes: ["firstName", "lastName"]
+          //   }
+          // ],
+
+          //  raw: false,
+          // nest: true
+        });
+
+        if (!dataSchedule) dataSchedule = [];
+        resolve({
+          errCode: 0,
+          data: dataSchedule
+        });
+      }
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
 
 module.exports = {
   getTopDoctorHome: getTopDoctorHome,
   getALlDoctors: getALlDoctors,
   saveDetailInfoDoctor: saveDetailInfoDoctor,
   getDetailDoctorById: getDetailDoctorById,
-  bulkCreateSchedule: bulkCreateSchedule
+  bulkCreateSchedule: bulkCreateSchedule,
+  getScheduleByDate: getScheduleByDate
 };
