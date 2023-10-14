@@ -158,17 +158,11 @@ const bulkCreateSchedule = async (data) => {
       });
     }
 
-    const existing = await db.Schedule.findAll({
+    let existing = await db.Schedule.findAll({
       where: { doctorId: data.doctorId, date: data.formatedDate },
       attributes: ["timeType", "date", "doctorId", "maxNumber"],
       raw: true
     });
-
-    if (existing.length > 0) {
-      existing.forEach((item) => {
-        item.date = new Date(item.date).getTime();
-      });
-    }
 
     // const toCreate = schedule.filter(a => {
     //   return !existing.some(
@@ -205,22 +199,22 @@ let getScheduleByDate = (doctorId, date) => {
           where: {
             doctorId: doctorId,
             date: date
-          }
-          // include: [
-          //   {
-          //     model: db.Allcode,
-          //     as: "timeTypeData",
-          //     attributes: ["valueEn", "valueVi"]
-          //   },
-          //   {
-          //     model: db.User,
-          //     as: "doctorData",
-          //     attributes: ["firstName", "lastName"]
-          //   }
-          // ],
+          },
+          include: [
+            {
+              model: db.Allcode,
+              as: "timeTypeData",
+              attributes: ["valueEn", "valueVi"]
+            }
+            // {
+            //   model: db.User,
+            //   as: "doctorData",
+            //   attributes: ["firstName", "lastName"]
+            // }
+          ],
 
-          //  raw: false,
-          // nest: true
+          raw: false,
+          nest: true
         });
 
         if (!dataSchedule) dataSchedule = [];
