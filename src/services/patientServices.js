@@ -8,28 +8,28 @@ let postBookAppointment = (data) => {
       if (
         !data.email ||
         !data.doctorId ||
-        !data.timeType
-        // ||
-        // !data.date ||
-        // !data.fullName ||
-        // !data.selectedGender ||
-        // !data.address
+        !data.timeType ||
+        !data.date ||
+        !data.fullName ||
+        !data.selectedGender ||
+        !data.address
       ) {
         resolve({
           errCode: 1,
           errMessage: "Missing  parameters"
         });
       } else {
-        // await emailService.sendSimpleEmail(data.email);
         // let token = uuidv4();
         await emailService.sendSimpleEmail({
           reciverEmail: data.email,
-          patientName: "Lê Văn Kiệm",
-          time: "Chủ nhật",
-          doctorName: "Nguyễn Duy Hưng",
+          patientName: data.fullName,
+          time: data.timeString,
+          doctorName: data.doctorName,
+          language: data.language,
           redirectLink: "https://www.youtube.com/"
-          // language: data.language,
+          // redirectLink: buiUrlEmail(data.doctorId, token)
         });
+        // console.log(doctorName);
 
         //upsert patient
         let user = await db.User.findOrCreate({
