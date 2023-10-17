@@ -57,7 +57,35 @@ let getALlDoctors = () => {
     }
   });
 };
+let checkRequiredFields = (inputData) => {
+  let arrFields = [
+    "doctorId",
+    "contentHTML",
+    "contentMarkdown",
+    "action",
+    "selectPrice",
+    "selectPayment",
+    "selectProvince",
+    "nameClinic",
+    "addressClinic",
+    "note",
+    "specialtyId"
+  ];
+  let isValid = true;
+  let element = "";
+  for (let i = 0; i < arrFields.length; i++) {
+    if (!inputData[arrFields[i]]) {
+      isValid = false;
+      element = arrFields[i];
+      break;
+    }
+  }
 
+  return {
+    isValid: isValid,
+    element: element
+  };
+};
 let saveDetailInfoDoctor = (inputData) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -107,8 +135,8 @@ let saveDetailInfoDoctor = (inputData) => {
           doctorInfor.nameClinic = inputData.nameClinic;
           doctorInfor.addressClinic = inputData.addressClinic;
           doctorInfor.note = inputData.note;
-          // doctorInfor.specialtyId = inputData.specialtyId;
-          // doctorInfor.clinicId = inputData.clinicId;
+          doctorInfor.specialtyId = inputData.specialtyId;
+          doctorInfor.clinicId = inputData.clinicId;
 
           await doctorInfor.save();
         } else {
@@ -120,9 +148,9 @@ let saveDetailInfoDoctor = (inputData) => {
             paymentId: inputData.selectPayment,
             nameClinic: inputData.nameClinic,
             addressClinic: inputData.addressClinic,
-            note: inputData.note
-            // specialtyId: inputData.specialtyId,
-            // clinicId: inputData.clinicId
+            note: inputData.note,
+            specialtyId: inputData.specialtyId,
+            clinicId: inputData.clinicId
           });
         }
       }
@@ -135,35 +163,7 @@ let saveDetailInfoDoctor = (inputData) => {
     }
   });
 };
-let checkRequiredFields = (inputData) => {
-  let arrFields = [
-    "doctorId",
-    "contentHTML",
-    "contentMarkdown",
-    "action",
-    "selectPrice",
-    "selectPayment",
-    "selectProvince",
-    "nameClinic",
-    "addressClinic",
-    "note"
-    // "specialtyId"
-  ];
-  let isValid = true;
-  let element = "";
-  for (let i = 0; i < arrFields.length; i++) {
-    if (!inputData[arrFields[i]]) {
-      isValid = false;
-      element = arrFields[i];
-      break;
-    }
-  }
 
-  return {
-    isValid: isValid,
-    element: element
-  };
-};
 let getDetailDoctorById = (inputId) => {
   return new Promise(async (resolve, reject) => {
     try {
