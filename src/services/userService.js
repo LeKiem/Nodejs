@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 
 const salt = bcrypt.genSaltSync(10);
 
-let hasUserPassword = password => {
+let hasUserPassword = (password) => {
   return new Promise(async (resolve, reject) => {
     try {
       let hashPassword = await bcrypt.hashSync(password, salt);
@@ -22,7 +22,14 @@ let handleUserLogin = (email, password) => {
       let isExist = await checkUserEmail(email);
       if (isExist) {
         let user = await db.User.findOne({
-          attributes: ["email", "roleId", "password", "firstName", "lastName"],
+          attributes: [
+            "id",
+            "email",
+            "roleId",
+            "password",
+            "firstName",
+            "lastName"
+          ],
           where: { email: email },
           raw: true
         });
@@ -58,7 +65,7 @@ let handleUserLogin = (email, password) => {
 //   return new Promise((resolve, reject) => {});
 // };
 
-let checkUserEmail = userEmail => {
+let checkUserEmail = (userEmail) => {
   return new Promise(async (resolve, reject) => {
     try {
       let user = await db.User.findOne({
@@ -75,7 +82,7 @@ let checkUserEmail = userEmail => {
   });
 };
 
-let getAllUsers = userId => {
+let getAllUsers = (userId) => {
   return new Promise(async (resolve, reject) => {
     try {
       let users = "";
@@ -101,7 +108,7 @@ let getAllUsers = userId => {
   });
 };
 
-let createNewUser = data => {
+let createNewUser = (data) => {
   return new Promise(async (resolve, reject) => {
     try {
       let check = await checkUserEmail(data.email);
@@ -135,7 +142,7 @@ let createNewUser = data => {
   });
 };
 
-let deleteUser = userId => {
+let deleteUser = (userId) => {
   return new Promise(async (resolve, reject) => {
     let user = await db.User.findOne({
       where: { id: userId }
@@ -159,7 +166,7 @@ let deleteUser = userId => {
     });
   });
 };
-let updateUserData = data => {
+let updateUserData = (data) => {
   return new Promise(async (resolve, reject) => {
     try {
       if (!data.id || !data.roleId || !data.positionId || !data.gender) {
@@ -201,7 +208,7 @@ let updateUserData = data => {
   });
 };
 
-let getAllCodeService = typeInput => {
+let getAllCodeService = (typeInput) => {
   return new Promise(async (resolve, reject) => {
     try {
       if (!typeInput) {
